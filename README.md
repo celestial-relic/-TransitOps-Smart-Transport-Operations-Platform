@@ -1,5 +1,4 @@
 TransitOps
-
 TransitOps is a transport and logistics management application built using Next.js, React, and Prisma with SQLite.
 
 Technologies Used
