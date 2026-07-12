@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  role         String         @default("DRIVER")
+  avatar       String?
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  driver       Driver?
+  notifications Notification[]
+  auditLogs    AuditLog[]
+}
+
+model Vehicle {
+  id                 String        @id @default(cuid())
+  registrationNumber String        @unique
+  make               String
+  model              String
+  year               Int
+  type               String        @default("TRUCK")
+  color              String?
+  vin                String?
+  maxLoad            Float         @default(0)
+  currentOdometer    Float         @default(0)
+  fuelType           String        @default("DIESEL")
+  acquisitionCost    Float         @default(0)
+  acquisitionDate    DateTime?
+  insuranceExpiry    DateTime?
+  insuranceProvider  String?
+  status             String        @default("ACTIVE")
+  notes              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  trips              Trip[]
+  maintenances       Maintenance[]
+  fuelLogs           FuelLog[]
+  expenses           Expense[]
+  documents          Document[]
+}
+
+model Driver {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeId       String    @unique
+  phone            String?
+  address          String?
+  dateOfBirth      DateTime?
+  licenseNumber    String    @unique
+  licenseType      String    @default("CDL-A")
+  licenseExpiry    DateTime
+  experience       Int       @default(0)
+  safetyScore      Float     @default(100)
+  status           String    @default("AVAILABLE")
+  emergencyContact String?
+  emergencyPhone   String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  trips            Trip[]
+  fuelLogs         FuelLog[]
+  documents        Document[]
+}
+
+model Trip {
+  id              String    @id @default(cuid())
+  tripNumber      String    @unique
+  vehicleId       String
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
+  driverId        String
+  driver          Driver    @relation(fields: [driverId], references: [id])
+  source          String
+  destination     String
+  cargoDescription String?
+  cargoWeight     Float     @default(0)
+  plannedDistance  Float     @default(0)
+  actualDistance   Float?
+  estimatedFuel   Float     @default(0)
+  actualFuel      Float?
+  fuelCost        Float?
+  status          String    @default("DRAFT")
+  priority        String    @default("MEDIUM")
+  scheduledDate   DateTime?
+  dispatchedAt    DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  deliveryNotes   String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Maintenance {
+  id              String    @id @default(cuid())
+  vehicleId       String
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
+  type            String    @default("PREVENTIVE")
+  issue           String
+  description     String?
+  mechanic        String?
+  mechanicContact String?
+  cost            Float     @default(0)
+  priority        String    @default("MEDIUM")
+  status          String    @default("SCHEDULED")
+  scheduledDate   DateTime
+  startedAt       DateTime?
+  completedAt     DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model FuelLog {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id])
+  driverId      String?
+  driver        Driver?  @relation(fields: [driverId], references: [id])
+  liters        Float
+  costPerLiter  Float
+  totalCost     Float
+  mileageAtFill Float    @default(0)
+  fuelStation   String?
+  fuelType      String   @default("DIESEL")
+  receiptUrl    String?
+  date          DateTime
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  vehicleId   String?
+  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+  category    String
+  amount      Float
+  description String?
+  vendor      String?
+  receiptUrl  String?
+  date        DateTime
+  approvedBy  String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         String
+  title        String
+  message      String
+  read         Boolean  @default(false)
+  priority     String   @default("NORMAL")
+  linkedEntity String?
+  linkedId     String?
+  createdAt    DateTime @default(now())
+}
+
+model Document {
+  id         String    @id @default(cuid())
+  entityType String
+  entityId   String
+  vehicleId  String?
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id])
+  driverId   String?
+  driver     Driver?   @relation(fields: [driverId], references: [id])
+  name       String
+  type       String
+  url        String
+  size       Int?
+  expiryDate DateTime?
+  uploadedAt DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+}
