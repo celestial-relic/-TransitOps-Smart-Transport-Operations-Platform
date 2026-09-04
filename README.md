@@ -304,14 +304,6 @@ npx prisma db push
 npm install
 ```
 
----
-
-# 📄 License
-
-This project is licensed under the **MIT License**.
-
----
-
 <div align="center">
 
 ### 🚍 TransitOps
