@@ -315,3 +315,6 @@ Made with ❤️ using **Next.js**, **React**, **Prisma**, and **SQLite**
 ⭐ Star this repository if you found it useful!
 
 </div>
+
+
+This was made for ODOO Hackathon
