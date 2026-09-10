@@ -316,5 +316,3 @@ Made with ❤️ using **Next.js**, **React**, **Prisma**, and **SQLite**
 
 </div>
 
-
-This was made for ODOO Hackathon
